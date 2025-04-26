@@ -84,7 +84,7 @@ app.post('/api/interviews/:id/continue', (req, res) => {
   }
 });
 
-const PORT = 3001;
+const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Mock server running on port ${PORT}`);
 }); 
