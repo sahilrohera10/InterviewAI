@@ -1,0 +1,90 @@
+import { DivideIcon as LucideIcon } from 'lucide-react';
+
+export interface FeatureProps {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}
+
+export interface TestimonialProps {
+  name: string;
+  role: string;
+  image: string;
+  quote: string;
+}
+
+export interface DifferentiatorProps {
+  title: string;
+  description: string;
+}
+
+export interface FAQItemProps {
+  question: string;
+  answer: string;
+}
+
+export interface SectionProps {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+}
+
+export interface ButtonProps {
+  children: React.ReactNode;
+  primary?: boolean;
+  className?: string;
+  onClick?: () => void;
+}
+
+export interface TechStack {
+  id: string;
+  name: string;
+  category: string;
+}
+
+export interface InterviewSetup {
+  role: string;
+  experience: number;
+  techStack: string[];
+  duration: number;
+}
+
+export interface InterviewQuestion {
+  id: string;
+  question: string;
+  type: 'behavioral' | 'technical';
+  followUp?: string[];
+}
+
+export interface InterviewResponse {
+  id: string;
+  questionId: string;
+  response: string;
+  analysis: {
+    clarity: number;
+    relevance: number;
+    structure: number;
+    technicalAccuracy?: number;
+  };
+}
+
+export interface InterviewSession {
+  id: string;
+  date: string;
+  duration: number;
+  role: string;
+  score: number;
+  questions: InterviewQuestion[];
+  responses: InterviewResponse[];
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string[];
+}
+
+export interface DashboardStats {
+  totalInterviews: number;
+  averageScore: number;
+  improvement: number;
+  topStrengths: string[];
+  areasToImprove: string[];
+}
