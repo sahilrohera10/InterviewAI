@@ -82,9 +82,9 @@
 		{
 			"id": "pointer:pointer",
 			"typeName": "pointer",
-			"x": 414.673687607864,
-			"y": 609.6586440332895,
-			"lastActivityTimestamp": 1745678771591,
+			"x": 1245.2316912854515,
+			"y": 916.6312916846641,
+			"lastActivityTimestamp": 1745679905742,
 			"meta": {}
 		},
 		{
@@ -244,9 +244,108 @@
 			"typeName": "shape"
 		},
 		{
-			"x": 80.22295244495956,
-			"y": 30.922253025656264,
-			"z": 0.6379646515003626,
+			"x": 291.0767280362396,
+			"y": 900.4792730998677,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:PyBruUrU86FacedpNwFt6",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 1464.5703125,
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1,
+				"richText": {
+					"type": "doc",
+					"content": [
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"text": "user login -> payload -> username, email, photo_url, -> return user token [userId]"
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							}
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"text": "initiate-interview -> payload -> role, years, tech, duration  -> return interviewId,"
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							}
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"text": "start-interview -> payload -> interviewId ->  return questions to ask, maintain array in interview table, ques -> ans"
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							}
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"text": "complete-interview -> interviewId -> calculate stats, save into db, return that"
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							}
+						}
+					]
+				}
+			},
+			"parentId": "page:page",
+			"index": "aJ24K",
+			"typeName": "shape"
+		},
+		{
+			"x": -376.4424004351586,
+			"y": -746.6989093899452,
+			"z": 1.2614852131491723,
 			"meta": {},
 			"id": "camera:page:page",
 			"typeName": "camera"
@@ -452,12 +551,12 @@
 			"typeName": "shape"
 		},
 		{
-			"editingShapeId": null,
+			"editingShapeId": "shape:PyBruUrU86FacedpNwFt6",
 			"croppingShapeId": null,
 			"selectedShapeIds": [
-				"shape:8PwAKahPQmxp6KURawnoA"
+				"shape:PyBruUrU86FacedpNwFt6"
 			],
-			"hoveredShapeId": "shape:8PwAKahPQmxp6KURawnoA",
+			"hoveredShapeId": "shape:PyBruUrU86FacedpNwFt6",
 			"erasingShapeIds": [],
 			"hintingShapeIds": [],
 			"focusedGroupId": null,
@@ -958,7 +1057,7 @@
 				"x": 0,
 				"y": 0,
 				"w": 1342,
-				"h": 713
+				"h": 583
 			},
 			"insets": [
 				false,
