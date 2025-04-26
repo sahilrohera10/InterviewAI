@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const PORT = process.env.PORT || 4000;
 
 const app = express();
 
@@ -10,17 +11,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Basic route
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to the API' });
-});
+const router = require('./routes/userRoute')
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
+app.use('/api/v1/user' , router);
 
-const PORT = process.env.PORT || 3000;
+// db connect here
+const dbConnect = require('./Database/dbConnect');
+dbConnect();
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
