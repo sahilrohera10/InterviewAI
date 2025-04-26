@@ -10,10 +10,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Basic route
-const router = require('./routes/userRoute')
+// Routes
+const userRouter = require('./routes/userRoute');
+const videoRouter = require('./routes/videoRoute');
 
-app.use('/api/v1/user' , router);
+app.use('/api/v1/user', userRouter);
+app.use('/api', videoRouter); // New video routes
 
 // db connect here
 const dbConnect = require('./Database/dbConnect');

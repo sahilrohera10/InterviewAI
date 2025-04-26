@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, MicOff, Send, HelpCircle, Settings, Clock, Video, VideoOff, Volume2, VolumeX, Pause, Play } from 'lucide-react';
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://localhost:3001';
+axios.defaults.baseURL = 'http://localhost:8000';
 
 interface InterviewQuestion {
   id: string;
@@ -133,27 +133,48 @@ const Interview: React.FC = () => {
   // Speak text aloud
   const speakOutLoud = (text: string) => {
     const synth = window.speechSynthesis;
-    if (!synth) return;
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    const voices = synth.getVoices();
-    const indianVoice = voices.find(voice => voice.lang.includes('en-IN')) || voices.find(voice => voice.lang.includes('en'));
-
-    if (indianVoice) {
-      utterance.voice = indianVoice;
+    if (!synth) {
+      console.error('Speech synthesis not supported');
+      return;
     }
 
-    utterance.pitch = 1.2;
-    utterance.rate = 1.1;
-    utterance.volume = 1;
+    // Cancel any ongoing speech
+    synth.cancel();
 
-    setIsSpeaking(true);
-    utterance.onend = () => {
-      setIsSpeaking(false);
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Wait for voices to be loaded
+    const getVoices = () => {
+      const voices = synth.getVoices();
+      if (voices.length > 0) {
+        const indianVoice = voices.find(voice => 
+          voice.lang.includes('en-IN') && voice.name.toLowerCase().includes('male')
+        ) || voices.find(voice => 
+          voice.lang.includes('en') && voice.name.toLowerCase().includes('male')
+        );
+
+        if (indianVoice) {
+          utterance.voice = indianVoice;
+        }
+        
+        // Configure voice settings
+        utterance.pitch = 1.3;
+        utterance.rate = 0.95;
+        utterance.volume = 1;
+
+        setIsSpeaking(true);
+        utterance.onend = () => {
+          setIsSpeaking(false);
+        };
+
+        synth.speak(utterance);
+      } else {
+        // If voices aren't loaded yet, try again in 100ms
+        setTimeout(getVoices, 100);
+      }
     };
 
-    synth.cancel();
-    synth.speak(utterance);
+    getVoices();
   };
 
   // Initialize webcam
@@ -210,11 +231,11 @@ const Interview: React.FC = () => {
   const startInterview = async () => {
     try {
       setIsLoading(true);
-      const res = await axios.post(`/api/interviews/${id}/start`);
+      const res = await axios.post(`http://localhost:3000/api/interviews/${id}/start`);
       setCurrentQuestion(res.data.question);
       
       // Try to get AI video
-      const videoUrl = await getAIVideo();
+      const videoUrl = await getAIVideo(res.data.question);
       if (videoUrl) {
         setCurrentVideo(videoUrl);
         setShowFallback(false);
@@ -278,14 +299,16 @@ const Interview: React.FC = () => {
   };
 
   // Function to get AI video based on question
-  const getAIVideo = async () => {
+  const getAIVideo = async (question: string) => {
     try {
       // In a real implementation, this would call your backend which would:
       // 1. Generate speech from the question
       // 2. Use D-ID/HeyGen API to create a talking video
       // 3. Return the video URL
-      // const response = await axios.post('/api/generate-ai-video', { text: question });
-      return ''; // Return empty string for now since we're not using the video
+      console.log(question.question);
+      const response = await axios.post('/api/video', { text: question.question });
+      console.log(response.data.videoUrl);
+      return response.data.videoUrl;
     } catch (error) {
       console.error('Error generating AI video:', error);
       return '';
