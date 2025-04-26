@@ -6,44 +6,135 @@ import * as Slider from '@radix-ui/react-slider';
 import { ChevronDown, Check } from 'lucide-react';
 import type { InterviewSetup, TechStack } from '../types';
 
-const roles = [
-  'Software Engineer',
-  'Frontend Developer',
-  'Backend Developer',
-  'Full Stack Developer',
-  'DevOps Engineer',
-  'Data Scientist',
-  'Product Manager',
-  'UX Designer',
-];
-
-const techStacks: TechStack[] = [
-  { id: 'react', name: 'React', category: 'Frontend' },
-  { id: 'vue', name: 'Vue.js', category: 'Frontend' },
-  { id: 'angular', name: 'Angular', category: 'Frontend' },
-  { id: 'node', name: 'Node.js', category: 'Backend' },
-  { id: 'python', name: 'Python', category: 'Backend' },
-  { id: 'java', name: 'Java', category: 'Backend' },
-  { id: 'aws', name: 'AWS', category: 'DevOps' },
-  { id: 'docker', name: 'Docker', category: 'DevOps' },
-  { id: 'kubernetes', name: 'Kubernetes', category: 'DevOps' },
-];
+const domains = {
+  'Technology': {
+    roles: [
+      'Software Engineer',
+      'Frontend Developer',
+      'Backend Developer',
+      'Full Stack Developer',
+      'DevOps Engineer',
+      'Data Scientist',
+      'Machine Learning Engineer',
+      'Cloud Architect',
+    ],
+    techStacks: [
+      { id: 'react', name: 'React', category: 'Frontend' },
+      { id: 'vue', name: 'Vue.js', category: 'Frontend' },
+      { id: 'angular', name: 'Angular', category: 'Frontend' },
+      { id: 'node', name: 'Node.js', category: 'Backend' },
+      { id: 'python', name: 'Python', category: 'Backend' },
+      { id: 'java', name: 'Java', category: 'Backend' },
+      { id: 'aws', name: 'AWS', category: 'DevOps' },
+      { id: 'docker', name: 'Docker', category: 'DevOps' },
+      { id: 'kubernetes', name: 'Kubernetes', category: 'DevOps' },
+      { id: 'tensorflow', name: 'TensorFlow', category: 'ML' },
+      { id: 'pytorch', name: 'PyTorch', category: 'ML' },
+    ]
+  },
+  'Business': {
+    roles: [
+      'Product Manager',
+      'Business Analyst',
+      'Project Manager',
+      'Marketing Manager',
+      'Sales Manager',
+      'Operations Manager',
+    ],
+    techStacks: [
+      { id: 'jira', name: 'Jira', category: 'Project Management' },
+      { id: 'trello', name: 'Trello', category: 'Project Management' },
+      { id: 'salesforce', name: 'Salesforce', category: 'CRM' },
+      { id: 'hubspot', name: 'HubSpot', category: 'Marketing' },
+      { id: 'google_analytics', name: 'Google Analytics', category: 'Analytics' },
+      { id: 'power_bi', name: 'Power BI', category: 'Analytics' },
+    ]
+  },
+  'Design': {
+    roles: [
+      'UX Designer',
+      'UI Designer',
+      'Product Designer',
+      'Graphic Designer',
+      'Motion Designer',
+    ],
+    techStacks: [
+      { id: 'figma', name: 'Figma', category: 'Design' },
+      { id: 'sketch', name: 'Sketch', category: 'Design' },
+      { id: 'adobe_xd', name: 'Adobe XD', category: 'Design' },
+      { id: 'photoshop', name: 'Photoshop', category: 'Design' },
+      { id: 'illustrator', name: 'Illustrator', category: 'Design' },
+      { id: 'after_effects', name: 'After Effects', category: 'Motion' },
+    ]
+  }
+};
 
 const durations = [15, 30, 60];
 
 const RoleSetup: React.FC = () => {
   const navigate = useNavigate();
   const [setup, setSetup] = useState<InterviewSetup>({
+    domain: '',
     role: '',
     experience: 0,
     techStack: [],
-    duration: 30,
+    duration: 0,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const baseUrl = import.meta.env.VITE_API_URL;
+
+  // Get available roles based on selected domain
+  const getAvailableRoles = () => {
+    return setup.domain ? domains[setup.domain as keyof typeof domains].roles : [];
+  };
+
+  // Get available tech stacks based on selected role
+  const getAvailableTechStacks = () => {
+    if (!setup.domain || !setup.role) return [];
+    return domains[setup.domain as keyof typeof domains].techStacks;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, we would create an interview session here
-    navigate('/interview/123');
+    
+    // Create array of missing fields
+    const missingFields = [];
+    
+    if (!setup.domain) {
+      missingFields.push('Domain');
+    }
+    
+    if (!setup.role) {
+      missingFields.push('Role');
+    }
+    
+    if (setup.techStack.length === 0) {
+      missingFields.push('Tech Stack');
+    }
+    
+    if (!setup.duration) {
+      missingFields.push('Interview Duration');
+    }
+
+    // If any fields are missing, show consolidated error message
+    if (missingFields.length > 0) {
+      alert(`Please fill in the following required fields:\n${missingFields.join('\n')}`);
+      return;
+    }
+
+    // If all fields are filled, proceed with form submission
+    console.log(setup);
+
+    // hit an endpoint to server to create an interview session
+    // const response = await fetch(`${baseUrl}/api/interviews`, {
+    //   method: 'POST',
+    //   body: JSON.stringify(setup),
+    // });
+
+    // const data = await response.json();
+    // console.log(data);
+    const interviewId = '123';
+    navigate(`/interview/${interviewId}`);
   };
 
   return (
@@ -57,6 +148,47 @@ const RoleSetup: React.FC = () => {
         <h1 className="text-3xl font-bold text-white mb-8">Setup Your Interview</h1>
         
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Domain Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Choose Your Domain
+            </label>
+            <Select.Root
+              value={setup.domain}
+              onValueChange={(value) => setSetup({ ...setup, domain: value, role: '', techStack: [] })}
+            >
+              <Select.Trigger
+                className="w-full flex items-center justify-between bg-dark-300 px-4 py-2 rounded-md border border-gray-700 text-white hover:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <Select.Value placeholder="Select a domain" />
+                <Select.Icon>
+                  <ChevronDown size={20} />
+                </Select.Icon>
+              </Select.Trigger>
+
+              <Select.Portal>
+                <Select.Content
+                  className="bg-dark-200 rounded-md border border-gray-700 shadow-xl"
+                >
+                  <Select.Viewport>
+                    {Object.keys(domains).map((domain) => (
+                      <Select.Item
+                        key={domain}
+                        value={domain}
+                        className="flex items-center px-4 py-2 text-white hover:bg-dark-300 focus:bg-dark-300 focus:outline-none cursor-pointer"
+                      >
+                        <Select.ItemText>{domain}</Select.ItemText>
+                        <Select.ItemIndicator className="ml-auto">
+                          <Check size={16} />
+                        </Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.Viewport>
+                </Select.Content>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+
           {/* Role Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2">
@@ -64,10 +196,11 @@ const RoleSetup: React.FC = () => {
             </label>
             <Select.Root
               value={setup.role}
-              onValueChange={(value) => setSetup({ ...setup, role: value })}
+              onValueChange={(value) => setSetup({ ...setup, role: value, techStack: [] })}
+              disabled={!setup.domain}
             >
               <Select.Trigger
-                className="w-full flex items-center justify-between bg-dark-300 px-4 py-2 rounded-md border border-gray-700 text-white hover:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full flex items-center justify-between bg-dark-300 px-4 py-2 rounded-md border border-gray-700 text-white hover:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Select.Value placeholder="Select a role" />
                 <Select.Icon>
@@ -80,7 +213,7 @@ const RoleSetup: React.FC = () => {
                   className="bg-dark-200 rounded-md border border-gray-700 shadow-xl"
                 >
                   <Select.Viewport>
-                    {roles.map((role) => (
+                    {getAvailableRoles().map((role) => (
                       <Select.Item
                         key={role}
                         value={role}
@@ -125,7 +258,7 @@ const RoleSetup: React.FC = () => {
               Select Tech Stack
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {techStacks.map((tech) => (
+              {getAvailableTechStacks().map((tech) => (
                 <button
                   key={tech.id}
                   type="button"
