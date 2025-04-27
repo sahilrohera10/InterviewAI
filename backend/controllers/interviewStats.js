@@ -137,7 +137,7 @@ console.log("Cleaned Text =>", cleanedText);
             interviewId : interviewId,
             overall_performance : overallPerformanceSummary,
             general_score: generalScore,
-            technical_accuracy: technicalAccuracy || 60, 
+            technical_accuracy: technicalAccuracy || 30, 
             communication : communicationScore,
             strengths,
             areas_to_improve: areasToImprove,

@@ -624,7 +624,8 @@ const Interview: React.FC = () => {
                 autoPlay
                 playsInline
                 muted
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transform scale-x-[-1]"
+                style={{ width: '160px', height: '120px' }}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-dark-300">
