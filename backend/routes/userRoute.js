@@ -6,6 +6,8 @@ const { auth } = require("../middlewares/auth");
 const {login} = require('../controllers/userController');
 const {interviewData, startInterview, continueInterview} = require('../controllers/interviewController')
 const {interviewStats , interviewAnalytics} = require('../controllers/interviewStats')
+const {interviewData, startInterview, continueInterview, endInterview} = require('../controllers/interviewController')
+const {interviewStats} = require('../controllers/interviewStats')
 
 router.post('/login' , login );
 
@@ -15,6 +17,7 @@ router.post('/login' , login );
 router.post('/initiate-interview' , interviewData);
 router.post('/start-interview' , startInterview);
 router.post('/continue-interview' , continueInterview);
+router.post('/end-interview' , endInterview);
 router.post('/interview/conversation/stats' , interviewStats);
 router.post('/interview/conversation/stats/analitics' , interviewAnalytics);
 module.exports = router;

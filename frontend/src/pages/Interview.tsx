@@ -6,12 +6,6 @@ import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8000';
 
-interface InterviewQuestion {
-  id: string;
-  question: string;
-  type: string;
-  followUp?: string[];
-}
 
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
@@ -52,7 +46,7 @@ const Interview: React.FC = () => {
 
   const [showCountdown, setShowCountdown] = useState(true);
   const [countdown, setCountdown] = useState(5);
-  const [currentQuestion, setCurrentQuestion] = useState<InterviewQuestion | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<string | null>(null);
   const [response, setResponse] = useState('');
   const [timeLeft, setTimeLeft] = useState(1800);
   const [isLoading, setIsLoading] = useState(false);
@@ -66,6 +60,8 @@ const Interview: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [isWebcamOn, setIsWebcamOn] = useState(true);
   const [webcamError, setWebcamError] = useState<string | null>(null);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [showQuestion, setShowQuestion] = useState(false);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -183,12 +179,19 @@ const Interview: React.FC = () => {
       if (!showCountdown) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: true,
+            video: {
+              width: { ideal: 640 },
+              height: { ideal: 480 },
+              facingMode: "user"
+            },
             audio: false 
           });
           
           if (webcamRef.current) {
             webcamRef.current.srcObject = stream;
+            webcamRef.current.play().catch(err => {
+              console.error('Error playing webcam stream:', err);
+            });
           }
         } catch (error) {
           console.error('Error accessing webcam:', error);
@@ -231,8 +234,12 @@ const Interview: React.FC = () => {
   const startInterview = async () => {
     try {
       setIsLoading(true);
-      const res = await axios.post(`http://localhost:3000/api/interviews/${id}/start`);
+      setShowQuestion(false);
+      const res = await axios.post(`/api/v1/user/start-interview`, {
+        interviewId: id,
+      });
       setCurrentQuestion(res.data.question);
+      setTimeLeft(parseInt(res.data.duration)*60);
       
       // Try to get AI video
       const videoUrl = await getAIVideo(res.data.question);
@@ -244,6 +251,7 @@ const Interview: React.FC = () => {
         }
       } else {
         setShowFallback(true);
+        setShowQuestion(true);
         speakOutLoud(res.data.question.question);
       }
     } catch (err) {
@@ -258,20 +266,22 @@ const Interview: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    console.log("in handleSubmit", currentQuestion, response);
     if (!currentQuestion || !response.trim()) return;
 
     try {
       setIsLoading(true);
-      const res = await axios.post(`/api/interviews/${id}/continue`, {
-        questionId: currentQuestion.id,
+      setShowQuestion(false);
+      const res = await axios.post(`/api/v1/user/continue-interview`, {
+        interviewId: id,
         answer: response,
       });
 
-      if (res.data.nextQuestion) {
-        setCurrentQuestion(res.data.nextQuestion);
+      if (res.data.feedbackAndNextQuestion) {
+        setCurrentQuestion(res.data.feedbackAndNextQuestion);
         
         // Try to get AI video for next question
-        const videoUrl = await getAIVideo();
+        const videoUrl = await getAIVideo(res.data.feedbackAndNextQuestion);
         if (videoUrl) {
           setCurrentVideo(videoUrl);
           setShowFallback(false);
@@ -280,7 +290,8 @@ const Interview: React.FC = () => {
           }
         } else {
           setShowFallback(true);
-          speakOutLoud(res.data.nextQuestion.question);
+          setShowQuestion(true);
+          speakOutLoud(res.data.feedbackAndNextQuestion);
         }
         
         setResponse('');
@@ -301,17 +312,21 @@ const Interview: React.FC = () => {
   // Function to get AI video based on question
   const getAIVideo = async (question: string) => {
     try {
+      setIsVideoLoading(true);
       // In a real implementation, this would call your backend which would:
       // 1. Generate speech from the question
       // 2. Use D-ID/HeyGen API to create a talking video
       // 3. Return the video URL
-      console.log(question.question);
-      const response = await axios.post('/api/video', { text: question.question });
+      console.log(question);
+      const response = await axios.post('/api/video', { text: question });
       console.log(response.data.videoUrl);
       return response.data.videoUrl;
+      // return null;`
     } catch (error) {
       console.error('Error generating AI video:', error);
       return '';
+    } finally {
+      setIsVideoLoading(false);
     }
   };
 
@@ -334,6 +349,27 @@ const Interview: React.FC = () => {
     const minutes = Math.floor(seconds / 60);
     const sec = seconds % 60;
     return `${minutes}:${sec.toString().padStart(2, '0')}`;
+  };
+
+  const handleEndInterview = async () => {
+    try {
+      setIsLoading(true);
+      const res = await axios.post(`/api/v1/user/end-interview`, {
+        interviewId: id,
+      });
+      
+      if (res.data.message === "Interview ended successfully") {
+        navigate(`/analysis/${id}`);
+      }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Failed to end interview.');
+      } else {
+        setError('An unexpected error occurred.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (error) {
@@ -415,6 +451,13 @@ const Interview: React.FC = () => {
           >
             {isVideoOn ? <Video size={20} /> : <VideoOff size={20} />}
           </button>
+          <button 
+            onClick={handleEndInterview}
+            className="p-2 rounded-full bg-red-500 text-white hover:bg-red-600"
+            disabled={isLoading}
+          >
+            End Interview
+          </button>
           <button className="text-gray-400 hover:text-white p-2">
             <HelpCircle size={20} />
           </button>
@@ -439,45 +482,62 @@ const Interview: React.FC = () => {
             <span className="text-white text-sm">Rahul Verma</span>
           </div>
           
-          <div className="relative h-full flex items-center justify-center">
-            {!showFallback && currentVideo ? (
-              <video
-                ref={videoRef}
-                src={currentVideo}
-                className="w-full h-full object-cover"
-                autoPlay
-                muted={isMuted}
-                onPlay={() => setIsSpeaking(true)}
-                onEnded={handleVideoEnd}
-                onError={() => {
-                  setShowFallback(true);
-                  speakOutLoud(currentQuestion?.question || '');
-                }}
-              />
+          <div className="relative h-full flex flex-col items-center justify-center">
+            {isVideoLoading ? (
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+                <p className="text-white text-lg">Your interviewer is getting ready...</p>
+              </div>
             ) : (
-              <div className="relative w-full h-full flex items-center justify-center">
-                <img 
-                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=interviewer" 
-                  alt="AI Interviewer"
-                  className={`w-48 h-48 rounded-full border-4 border-primary-500 object-cover ${isSpeaking ? 'animate-pulse' : ''}`}
-                />
-                {isSpeaking && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-64 h-64 rounded-full border-4 border-primary-500/30 animate-ping"></div>
+              <>
+                {showQuestion && (
+                  <div className="w-full max-w-2xl mb-8 z-20">
+                    <div className="bg-dark-300/90 backdrop-blur-sm p-4 rounded-lg">
+                      <p className="text-white text-lg text-center">{currentQuestion}</p>
+                    </div>
                   </div>
                 )}
-              </div>
+                {!showFallback && currentVideo ? (
+                  <div className="relative w-full h-full">
+                    <video
+                      ref={videoRef}
+                      src={currentVideo}
+                      className="w-full h-full object-cover rounded-lg"
+                      autoPlay
+                      muted={isMuted}
+                      onPlay={() => {
+                        setIsSpeaking(true);
+                        setShowQuestion(true);
+                      }}
+                      onEnded={handleVideoEnd}
+                      onError={() => {
+                        setShowFallback(true);
+                        setShowQuestion(true);
+                        speakOutLoud(currentQuestion || '');
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="relative w-full h-full flex flex-col items-center justify-center space-y-8">
+                    <div className="relative">
+                      <img 
+                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=interviewer" 
+                        alt="AI Interviewer"
+                        className={`w-48 h-48 rounded-full border-4 border-primary-500 object-cover ${isSpeaking ? 'animate-pulse' : ''}`}
+                      />
+                      {isSpeaking && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-64 h-64 rounded-full border-4 border-primary-500/30 animate-ping"></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
-          <div className="absolute bottom-4 left-4 right-4 z-20">
-            <div className="bg-dark-300/90 backdrop-blur-sm p-4 rounded-lg">
-              <p className="text-white text-lg">{currentQuestion?.question}</p>
-              {currentQuestion?.followUp?.map((followup, idx) => (
-                <p key={idx} className="text-gray-400 text-sm mt-2">{followup}</p>
-              ))}
-            </div>
-          </div>
+
         </motion.div>
 
         {/* Response Box */}
@@ -568,16 +628,16 @@ const Interview: React.FC = () => {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-dark-300">
-                {/* Camera icon removed as per user's changes */}
+                <VideoOff size={24} className="text-gray-400" />
               </div>
             )}
           </div>
+          {webcamError && (
+            <div className="mt-2 text-xs text-red-500 bg-dark-200/90 p-2 rounded">
+              {webcamError}
+            </div>
+          )}
         </div>
-        {webcamError && (
-          <div className="mt-2 text-xs text-red-500 bg-dark-200/90 p-2 rounded">
-            {webcamError}
-          </div>
-        )}
       </div>
     </div>
   );

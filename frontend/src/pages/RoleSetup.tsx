@@ -3,8 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Select from '@radix-ui/react-select';
 import * as Slider from '@radix-ui/react-slider';
-import { ChevronDown, Check } from 'lucide-react';
-import type { InterviewSetup, TechStack } from '../types';
+import { ChevronDown, Check, Crown } from 'lucide-react';
+import type { InterviewSetup } from '../types';
+import axios from 'axios';
+
+axios.defaults.baseURL = 'http://localhost:8000';
+
 
 const domains = {
   'Technology': {
@@ -69,7 +73,7 @@ const domains = {
   }
 };
 
-const durations = [15, 30, 60];
+const durations = [5, 10, 15];
 
 const RoleSetup: React.FC = () => {
   const navigate = useNavigate();
@@ -79,9 +83,8 @@ const RoleSetup: React.FC = () => {
     experience: 0,
     techStack: [],
     duration: 0,
+    jobDescription: '',
   });
-
-  const baseUrl = import.meta.env.VITE_API_URL;
 
   // Get available roles based on selected domain
   const getAvailableRoles = () => {
@@ -123,18 +126,19 @@ const RoleSetup: React.FC = () => {
     }
 
     // If all fields are filled, proceed with form submission
-    console.log(setup);
+        console.log(setup);
 
     // hit an endpoint to server to create an interview session
-    // const response = await fetch(`${baseUrl}/api/interviews`, {
-    //   method: 'POST',
-    //   body: JSON.stringify(setup),
-    // });
+    const response = await axios.post('/api/v1/user/initiate-interview', setup);
 
-    // const data = await response.json();
-    // console.log(data);
-    const interviewId = '123';
-    navigate(`/interview/${interviewId}`);
+    const data = response.data;
+    console.log(data);
+    const interviewId = data.interviewId;
+    if(interviewId){
+      navigate(`/interview/${interviewId}`);
+    }else{
+      alert("Error in initiating interview");
+    }
   };
 
   return (
@@ -278,6 +282,28 @@ const RoleSetup: React.FC = () => {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Job Description - Premium Feature */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <label className="block text-sm font-medium text-gray-400">
+                Job Description (Premium)
+              </label>
+              <div className="flex items-center gap-1 text-yellow-500">
+                <Crown size={16} />
+                <span className="text-xs">Premium</span>
+              </div>
+            </div>
+            <textarea
+              value={setup.jobDescription}
+              onChange={(e) => setSetup({ ...setup, jobDescription: e.target.value })}
+              placeholder="Paste the job description you're targeting (optional)"
+              className="w-full bg-dark-300 text-white p-4 rounded-md border border-gray-700 focus:border-primary-500 focus:ring-primary-500 focus:ring-1 resize-none h-32"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Adding a job description helps us tailor the interview questions to match your target role.
+            </p>
           </div>
 
           {/* Interview Duration */}
