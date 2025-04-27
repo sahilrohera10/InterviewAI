@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config({path : "../.env"});
 const secret_key = process.env.SECRET_KEY
-
+const { v4: uuidv4 } = require('uuid');
 // here is requiring schema
 const {UserModel} = require('../models/userModel')
 
@@ -22,6 +22,7 @@ async function login(req, res) {
       if (!user) {
         try {
           const createUser = await UserModel.create({
+            userId : uuidv4(),
             username,
             email,
             photo_url,

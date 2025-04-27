@@ -7,10 +7,22 @@ function arrayLimit(val) {
   }  
 
 const interviewSchema = new Schema({
-    user_id : {
-        type: ObjectId,
-        ref: 'users',
+    userId : {
+        type: String,
         required:true
+    },
+
+    interviewId : {
+        type : String,
+        required : true,
+        unique : true
+    },
+
+    domain : {
+        type : String,
+        required : true,
+        uppercase : true,
+        trim : true
     },
     role : {
         type : String,

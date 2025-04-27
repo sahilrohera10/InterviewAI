@@ -3,23 +3,15 @@ const { Schema } = mongoose;
 const {ObjectId} = Schema.Types;
 
 const conversationSchema = new Schema({
-    interview_id : {
-        type: ObjectId,
-        ref: 'interviews',
+    interviewId : {
+        type: String,
         required:[true , "interview id is required"]
     },
     
-    question : {
-        type: String,
-        required: true,
-        trim: true
-    },
-
-    answer : {
-        type: String,
-        required: true,
-        trim: true
-    },
+   conversationHistory : {
+    type: Array,
+    default: []
+   },
 
     created_at:{
         type: Date,
