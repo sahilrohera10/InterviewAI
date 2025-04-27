@@ -31,14 +31,14 @@ const interviewSchema = new Schema({
         trim:true
     },
 
-    years_of_experience: {
+    experience: {
         type: Number,
         required: [true, "Years of experience is required"],
         min: 0, 
         max: 100   
       },
     
-    tech : {
+    techStack : {
         type : [String],
         required: true,
         validate: {

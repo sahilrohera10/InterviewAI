@@ -14,7 +14,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 async function interviewData(req , res){
     try{
             const userID = "749d6326-8cfb-4bc0-a57a-385ef43fd468";
-            const {domain, role , years_of_experience , tech , duration} = req.body;
+            const {domain, role , experience , techStack , duration} = req.body;
 
             if(!userID){
                 res.send({
@@ -27,8 +27,8 @@ async function interviewData(req , res){
                 interviewId : uuidv4(),
                 domain,
                 role,
-                years_of_experience,
-                tech,
+                experience,
+                techStack,
                 duration
             })
             console.log(interviewPayload)
@@ -70,17 +70,17 @@ async function startInterview(req , res){
             })
         }
 
-        const {domain , role , years_of_experience , tech , duration} = interviewDetails;
+        const {domain , role , experience , techStack , duration} = interviewDetails;
 
         const prompt = `
         You are a highly professional interviewer.
         
         Conduct a mock interview for a candidate applying for the role of "${role}" in the "${domain}" domain.
-        The candidate has ${years_of_experience} years of experience and specializes in "${tech}".
+        The candidate has ${experience} years of experience and specializes in "${techStack}".
         
         The interview should last approximately ${duration} minutes.
         
-        Start by asking the **first** question only, based on the "${tech}" topic.
+        Start by asking the **first** question only, based on the "${techStack}" topic.
         - Do not provide any answers.
         - Keep the question short, clear, and relevant to the candidate's experience.
         - Ask only **one** question at a time.
@@ -105,6 +105,7 @@ async function startInterview(req , res){
     
         return res.status(200).json({
           message: "Interview started successfully",
+          duration,
           question: text,
           conversationHistory,
         });
@@ -118,7 +119,7 @@ async function startInterview(req , res){
     }
 }
 
-function generatePrompt(domain, role, years_of_experience, tech, duration, conversationHistory) {
+function generatePrompt(domain, role, experience, techStack, duration, conversationHistory) {
     const formattedHistory = conversationHistory && conversationHistory.map(msg => 
         `${msg.role === 'interviewer' ? "Interviewer" : "Candidate"}: ${msg.message}`
     ).join('\n');
@@ -127,7 +128,7 @@ function generatePrompt(domain, role, years_of_experience, tech, duration, conve
 You are a highly professional interviewer.
 
 Conduct a mock interview for a candidate applying for the role of "${role}" in the "${domain}" domain.
-The candidate has ${years_of_experience} years of experience and specializes in "${tech}".
+The candidate has ${experience} years of experience and specializes in "${techStack}".
 
 The interview should ideally last around ${duration} minutes.
 
@@ -140,8 +141,8 @@ Now, based on the candidate's last answer:
 - Then ask the next interview question.
 
 Important Instructions:
-- The next question must be in the continuation of the previous conversation held so far and should be based on the "${tech}" topic.
-- Strictly avoid questions outside "${tech}" domain.
+- The next question must be in the continuation of the previous conversation held so far and should be based on the "${techStack}" topic.
+- Strictly avoid questions outside "${techStack}" domain.
 - Maintain a professional, realistic interview tone.
 - Keep each question short, clear, and job-focused.
 - Ask only one question at a time.
@@ -169,9 +170,9 @@ async function continueInterview(req , res){
             })
         }
 
-        const {domain , role , years_of_experience , tech , duration} = interviewDetails;
+        const {domain , role , experience , techStack , duration} = interviewDetails;
 
-        const prompt = generatePrompt(domain, role, years_of_experience, tech, duration, conversationData.conversationHistory);
+        const prompt = generatePrompt(domain, role, experience, techStack, duration, conversationData.conversationHistory);
 
 
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
@@ -197,4 +198,24 @@ async function continueInterview(req , res){
     }
 }
 
-module.exports = {interviewData , startInterview , continueInterview}
+async function endInterview(req, res) {
+    try {
+        const { interviewId } = req.body;
+        
+        // Here you can add any cleanup or finalization logic
+        // For example, saving final interview stats, marking interview as completed, etc.
+        
+        return res.status(200).json({
+            message: "Interview ended successfully",
+            interviewId
+        });
+    } catch (err) {
+        return res.status(501).send({
+            status: "fail",
+            message: "Error in ending interview",
+            error: err.message
+        });
+    }
+}
+
+module.exports = {interviewData , startInterview , continueInterview, endInterview}
