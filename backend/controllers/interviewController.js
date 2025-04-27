@@ -197,4 +197,30 @@ async function continueInterview(req , res){
     }
 }
 
-module.exports = {interviewData , startInterview , continueInterview}
+async function endInterview(){
+   try{
+
+    const {interviewId , answer} = req.body;
+
+    const conversationData = await conversation({interviewId, object: {role: 'candidate', message: answer}});
+ 
+    if(!conversationData){
+     res.send({
+         message: "Conversation not found"
+     })
+   }
+ 
+   res.status(200).json({
+     status: "success",
+     data: conversationData
+   });
+
+   }catch(err){
+    res.status(500).json({
+        status: "fail",
+        message: error.message
+      });
+    }
+   }
+
+module.exports = {interviewData , startInterview , continueInterview , endInterview}
