@@ -151,41 +151,7 @@ const Hero: React.FC = () => {
                     <path d="M12 16V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
-                <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 bg-secondary-500 rounded-full flex items-center justify-center mr-4">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <div className="bg-dark-300 rounded-lg p-4 relative max-w-xs">
-                    <p className="text-white">Tell me about a challenging project you worked on and how you overcame obstacles.</p>
-                    <div className="absolute top-1/2 -left-2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-r-8 border-b-8 border-transparent border-r-dark-300"></div>
-                  </div>
-                </div>
-                <div className="flex items-start justify-end mb-6">
-                  <div className="bg-primary-900/50 rounded-lg p-4 relative max-w-xs mr-4">
-                    <p className="text-white">I led a team project to redesign our company's e-commerce platform...</p>
-                    <div className="absolute top-1/2 -right-2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-l-8 border-b-8 border-transparent border-l-primary-900/50"></div>
-                  </div>
-                  <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                </div>
-                <div className="flex justify-between mt-6 border-t border-gray-800 pt-4">
-                  <div>
-                    <p className="text-xs text-gray-500">Interview Progress</p>
-                    <div className="w-32 bg-gray-700 rounded-full h-2 mt-1">
-                      <div className="bg-gradient-to-r from-primary-500 to-secondary-500 h-2 rounded-full" style={{ width: '40%' }}></div>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-white text-sm">Question 4/10</span>
-                  </div>
-                </div>
+                <img src="/src/images/image.png" alt="User" width="800" height="600" />
               </div>
               <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-gradient-to-br from-accent-500 to-primary-500 rounded-full flex items-center justify-center animate-pulse">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

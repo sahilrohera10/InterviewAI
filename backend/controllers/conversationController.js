@@ -14,8 +14,9 @@ async function conversation(data){
             // then update the conversationModela, for that interviewId and push that object in the conversationHistory array
             conversationData = await conversationModel.findOneAndUpdate({interviewId: interviewId}, {$push: {conversationHistory: object}});
         }
-
+        else{
             conversationData = await conversationModel.create({interviewId: interviewId , conversationHistory});
+        }
     
 
         return conversationData;
